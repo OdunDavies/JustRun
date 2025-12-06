@@ -1,25 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-toastify';
 import GlowInput from '@/components/ui/GlowInput';
 import GlowButton from '@/components/ui/GlowButton';
-import { User, Lock, Zap, ArrowRight, CheckCircle } from 'lucide-react';
+import { Mail, Lock, Zap, ArrowRight, CheckCircle } from 'lucide-react';
 
 const Register: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ username?: string; password?: string; confirmPassword?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
   
-  const { register } = useAuth();
+  const { register, session } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (session) {
+      navigate('/dashboard');
+    }
+  }, [session, navigate]);
+
   const validate = () => {
-    const newErrors: { username?: string; password?: string; confirmPassword?: string } = {};
-    if (!username.trim()) newErrors.username = 'Username is required';
-    if (username && username.length < 3) newErrors.username = 'Username must be at least 3 characters';
+    const newErrors: { email?: string; password?: string; confirmPassword?: string } = {};
+    if (!email.trim()) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Invalid email format';
     if (!password) newErrors.password = 'Password is required';
     if (password && password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
@@ -33,7 +39,7 @@ const Register: React.FC = () => {
 
     setIsLoading(true);
     try {
-      await register(username, password);
+      await register(email, password);
       toast.success('Account created! Welcome to JustRun! 🎉');
       navigate('/dashboard');
     } catch (error: any) {
@@ -90,13 +96,13 @@ const Register: React.FC = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <GlowInput
-              icon={User}
-              type="text"
-              placeholder="Choose a username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              error={errors.username}
-              autoComplete="username"
+              icon={Mail}
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={errors.email}
+              autoComplete="email"
             />
             <GlowInput
               icon={Lock}
