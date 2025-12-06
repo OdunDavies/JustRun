@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 const Profile: React.FC = () => {
-  const { user, updateUser } = useAuth();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState('Running enthusiast | Always chasing new PRs! 🏃‍♂️');
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -35,14 +35,14 @@ const Profile: React.FC = () => {
     bestPace: '5:24',
   };
 
+  const displayName = user?.email?.split('@')[0] || 'Runner';
+  const userInitial = user?.email?.charAt(0).toUpperCase() || 'U';
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
       // In a real app, call API here
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (avatarUrl) {
-        updateUser({ avatar: avatarUrl });
-      }
       toast.success('Profile updated successfully!');
       setIsEditing(false);
     } catch (error) {
@@ -75,12 +75,12 @@ const Profile: React.FC = () => {
             <div className="flex items-end gap-4">
               <div className="relative">
                 <div className="h-28 w-28 rounded-2xl bg-card border-4 border-card shadow-elevated flex items-center justify-center overflow-hidden">
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt="Avatar" className="h-full w-full object-cover" />
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
                   ) : (
                     <div className="h-full w-full gradient-primary flex items-center justify-center">
                       <span className="font-display text-4xl font-bold text-primary-foreground">
-                        {user?.username?.charAt(0).toUpperCase() || 'U'}
+                        {userInitial}
                       </span>
                     </div>
                   )}
@@ -93,7 +93,7 @@ const Profile: React.FC = () => {
               </div>
               <div className="pb-2">
                 <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
-                  {user?.username || 'Runner'}
+                  {displayName}
                 </h1>
                 <p className="text-muted-foreground flex items-center gap-2">
                   <Calendar className="h-4 w-4" />

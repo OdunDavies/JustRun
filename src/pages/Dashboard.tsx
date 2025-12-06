@@ -51,7 +51,7 @@ const Dashboard: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">
-            {greeting()}, <span className="text-gradient">{user?.username || 'Runner'}</span>!
+            {greeting()}, <span className="text-gradient">{user?.email?.split('@')[0] || 'Runner'}</span>!
           </h1>
           <p className="text-muted-foreground mt-1">Ready to crush your goals today?</p>
         </div>

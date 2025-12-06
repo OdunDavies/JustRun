@@ -65,9 +65,9 @@ const Navbar: React.FC = () => {
           <div className="hidden md:flex items-center gap-4">
             <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-muted/50">
               <div className="h-8 w-8 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
-                {user?.username?.charAt(0).toUpperCase() || 'U'}
+                {user?.email?.charAt(0).toUpperCase() || 'U'}
               </div>
-              <span className="font-medium text-foreground">{user?.username}</span>
+              <span className="font-medium text-foreground">{user?.email?.split('@')[0]}</span>
             </div>
             <button
               onClick={logout}
@@ -99,10 +99,10 @@ const Navbar: React.FC = () => {
             {/* User Info */}
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-muted/50 mb-4">
               <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
-                {user?.username?.charAt(0).toUpperCase() || 'U'}
+                {user?.email?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div>
-                <p className="font-semibold text-foreground">{user?.username}</p>
+                <p className="font-semibold text-foreground">{user?.email?.split('@')[0]}</p>
                 <p className="text-sm text-muted-foreground">Runner</p>
               </div>
             </div>

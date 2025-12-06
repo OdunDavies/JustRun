@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-toastify';
 import GlowInput from '@/components/ui/GlowInput';
 import GlowButton from '@/components/ui/GlowButton';
-import { User, Lock, Zap, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Zap, ArrowRight } from 'lucide-react';
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   
-  const { login } = useAuth();
+  const { login, session } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (session) {
+      navigate('/dashboard');
+    }
+  }, [session, navigate]);
+
   const validate = () => {
-    const newErrors: { username?: string; password?: string } = {};
-    if (!username.trim()) newErrors.username = 'Username is required';
+    const newErrors: { email?: string; password?: string } = {};
+    if (!email.trim()) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Invalid email format';
     if (!password) newErrors.password = 'Password is required';
     if (password && password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     setErrors(newErrors);
@@ -30,8 +37,8 @@ const Login: React.FC = () => {
 
     setIsLoading(true);
     try {
-      await login(username, password);
-      toast.success('Welcome back! Let\'s run! 🏃‍♂️');
+      await login(email, password);
+      toast.success("Welcome back! Let's run! 🏃‍♂️");
       navigate('/dashboard');
     } catch (error: any) {
       toast.error(error.message || 'Login failed. Please try again.');
@@ -67,13 +74,13 @@ const Login: React.FC = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <GlowInput
-              icon={User}
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              error={errors.username}
-              autoComplete="username"
+              icon={Mail}
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={errors.email}
+              autoComplete="email"
             />
             <GlowInput
               icon={Lock}

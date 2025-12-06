@@ -1,19 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authAPI } from '@/lib/api';
-
-interface User {
-  username: string;
-  avatar?: string;
-}
+import { supabase } from '@/integrations/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
+  session: Session | null;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<void>;
-  register: (username: string, password: string) => Promise<void>;
-  logout: () => void;
-  updateUser: (updates: Partial<User>) => void;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,64 +27,62 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('justrun_token');
-    const storedUser = localStorage.getItem('justrun_user');
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (username: string, password: string) => {
-    try {
-      const response = await authAPI.login(username, password);
-      const { token: newToken } = response;
-      
-      const newUser = { username };
-      
-      localStorage.setItem('justrun_token', newToken);
-      localStorage.setItem('justrun_user', JSON.stringify(newUser));
-      
-      setToken(newToken);
-      setUser(newUser);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Login failed');
+  const login = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      throw new Error(error.message);
     }
   };
 
-  const register = async (username: string, password: string) => {
-    try {
-      await authAPI.register(username, password);
-      // After registration, log in automatically
-      await login(username, password);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Registration failed');
+  const register = async (email: string, password: string) => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+      },
+    });
+    if (error) {
+      throw new Error(error.message);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('justrun_token');
-    localStorage.removeItem('justrun_user');
-    setToken(null);
-    setUser(null);
-  };
-
-  const updateUser = (updates: Partial<User>) => {
-    if (user) {
-      const updatedUser = { ...user, ...updates };
-      setUser(updatedUser);
-      localStorage.setItem('justrun_user', JSON.stringify(updatedUser));
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw new Error(error.message);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, session, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
