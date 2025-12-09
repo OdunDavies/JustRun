@@ -14,7 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_stats: {
+        Row: {
+          created_at: string
+          date: string
+          distance_km: number
+          id: string
+          jogs_count: number
+          steps: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          distance_km?: number
+          id?: string
+          jogs_count?: number
+          steps?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          distance_km?: number
+          id?: string
+          jogs_count?: number
+          steps?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      jogs: {
+        Row: {
+          created_at: string
+          distance_km: number
+          duration_seconds: number
+          id: string
+          route: Json
+          steps: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          distance_km?: number
+          duration_seconds?: number
+          id?: string
+          route?: Json
+          steps?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          distance_km?: number
+          duration_seconds?: number
+          id?: string
+          route?: Json
+          steps?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
