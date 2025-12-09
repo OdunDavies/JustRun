@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'react-toastify';
+import { useProfile } from '@/hooks/useProfile';
+import { useJogs } from '@/hooks/useJogs';
+import { useDailyStats } from '@/hooks/useDailyStats';
 import GlowInput from '@/components/ui/GlowInput';
 import GlowButton from '@/components/ui/GlowButton';
 import StatCard from '@/components/ui/StatCard';
+import StreakCalendar from '@/components/StreakCalendar';
 import { 
-  User, 
   MapPin, 
   Calendar, 
   Award, 
@@ -15,49 +17,73 @@ import {
   Camera,
   TrendingUp,
   Footprints,
-  Target
+  Target,
+  Loader2
 } from 'lucide-react';
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
+  const { profile, isLoading: profileLoading, updateProfile } = useProfile();
+  const { totalDistance, totalSteps, totalJogs, isLoading: jogsLoading } = useJogs();
+  const { currentStreak, activeDays } = useDailyStats();
+  
   const [isEditing, setIsEditing] = useState(false);
-  const [bio, setBio] = useState('Running enthusiast | Always chasing new PRs! 🏃‍♂️');
+  const [bio, setBio] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  // Mock lifetime stats
-  const lifetimeStats = {
-    totalDistance: 487.5,
-    totalJogs: 156,
-    totalSteps: 634750,
-    joinDate: 'January 2024',
-    streak: 12,
-    bestPace: '5:24',
-  };
+  // Initialize form when profile loads
+  React.useEffect(() => {
+    if (profile) {
+      setBio(profile.bio || '');
+      setDisplayName(profile.display_name || '');
+      setAvatarUrl(profile.avatar_url || '');
+    }
+  }, [profile]);
 
-  const displayName = user?.email?.split('@')[0] || 'Runner';
-  const userInitial = user?.email?.charAt(0).toUpperCase() || 'U';
+  const userInitial = profile?.display_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U';
+  const joinDate = profile?.created_at 
+    ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : 'Unknown';
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // In a real app, call API here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success('Profile updated successfully!');
+      await updateProfile({
+        display_name: displayName,
+        bio,
+        avatar_url: avatarUrl || null,
+      });
       setIsEditing(false);
     } catch (error) {
-      toast.error('Failed to update profile');
+      // Error handled in hook
     } finally {
       setIsSaving(false);
     }
   };
 
+  const handleCancel = () => {
+    setBio(profile?.bio || '');
+    setDisplayName(profile?.display_name || '');
+    setAvatarUrl(profile?.avatar_url || '');
+    setIsEditing(false);
+  };
+
   const achievements = [
-    { icon: '🏆', title: 'Century Club', description: 'Ran 100+ km total' },
-    { icon: '🔥', title: 'On Fire', description: '7-day streak' },
-    { icon: '⚡', title: 'Speed Demon', description: 'Pace under 6 min/km' },
-    { icon: '🌅', title: 'Early Bird', description: 'Morning runner' },
+    { icon: '🏆', title: 'Century Club', description: 'Ran 100+ km total', unlocked: totalDistance >= 100 },
+    { icon: '🔥', title: 'On Fire', description: '7-day streak', unlocked: currentStreak >= 7 },
+    { icon: '🎯', title: 'Committed', description: '10+ runs logged', unlocked: totalJogs >= 10 },
+    { icon: '🌟', title: 'Star Runner', description: '50+ km total', unlocked: totalDistance >= 50 },
   ];
+
+  if (profileLoading || jogsLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -75,8 +101,8 @@ const Profile: React.FC = () => {
             <div className="flex items-end gap-4">
               <div className="relative">
                 <div className="h-28 w-28 rounded-2xl bg-card border-4 border-card shadow-elevated flex items-center justify-center overflow-hidden">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                  {avatarUrl || profile?.avatar_url ? (
+                    <img src={avatarUrl || profile?.avatar_url || ''} alt="Avatar" className="h-full w-full object-cover" />
                   ) : (
                     <div className="h-full w-full gradient-primary flex items-center justify-center">
                       <span className="font-display text-4xl font-bold text-primary-foreground">
@@ -92,12 +118,21 @@ const Profile: React.FC = () => {
                 )}
               </div>
               <div className="pb-2">
-                <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
-                  {displayName}
-                </h1>
-                <p className="text-muted-foreground flex items-center gap-2">
+                {isEditing ? (
+                  <GlowInput
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Display name"
+                    className="max-w-[200px]"
+                  />
+                ) : (
+                  <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+                    {profile?.display_name || 'Runner'}
+                  </h1>
+                )}
+                <p className="text-muted-foreground flex items-center gap-2 mt-1">
                   <Calendar className="h-4 w-4" />
-                  Member since {lifetimeStats.joinDate}
+                  Member since {joinDate}
                 </p>
               </div>
             </div>
@@ -110,7 +145,7 @@ const Profile: React.FC = () => {
                     variant="outline"
                     size="sm"
                     icon={X}
-                    onClick={() => setIsEditing(false)}
+                    onClick={handleCancel}
                   >
                     Cancel
                   </GlowButton>
@@ -155,7 +190,7 @@ const Profile: React.FC = () => {
                 />
               </div>
             ) : (
-              <p className="text-foreground">{bio}</p>
+              <p className="text-foreground">{profile?.bio || 'No bio yet. Click edit to add one!'}</p>
             )}
           </div>
         </div>
@@ -170,30 +205,33 @@ const Profile: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard
             title="Total Distance"
-            value={`${lifetimeStats.totalDistance} km`}
+            value={`${totalDistance.toFixed(1)} km`}
             icon={MapPin}
             variant="primary"
           />
           <StatCard
             title="Total Jogs"
-            value={lifetimeStats.totalJogs}
+            value={totalJogs}
             icon={Target}
             variant="secondary"
           />
           <StatCard
             title="Total Steps"
-            value={lifetimeStats.totalSteps.toLocaleString()}
+            value={totalSteps.toLocaleString()}
             icon={Footprints}
             variant="accent"
           />
           <StatCard
             title="Current Streak"
-            value={`${lifetimeStats.streak} days`}
+            value={`${currentStreak} days`}
             subtitle="Keep it up!"
             icon={Award}
           />
         </div>
       </div>
+
+      {/* Streak Calendar */}
+      <StreakCalendar activeDays={activeDays} currentStreak={currentStreak} />
 
       {/* Achievements */}
       <div>
@@ -205,41 +243,24 @@ const Profile: React.FC = () => {
           {achievements.map((achievement, index) => (
             <div
               key={index}
-              className="bg-card rounded-2xl p-5 border border-border/50 shadow-card hover:shadow-elevated hover:scale-[1.02] transition-all duration-300 text-center"
+              className={`bg-card rounded-2xl p-5 border shadow-card transition-all duration-300 text-center ${
+                achievement.unlocked 
+                  ? 'border-primary/30 hover:shadow-elevated hover:scale-[1.02]' 
+                  : 'border-border/50 opacity-50'
+              }`}
             >
-              <div className="text-4xl mb-3">{achievement.icon}</div>
+              <div className={`text-4xl mb-3 ${achievement.unlocked ? '' : 'grayscale'}`}>
+                {achievement.icon}
+              </div>
               <h3 className="font-semibold text-foreground">{achievement.title}</h3>
               <p className="text-sm text-muted-foreground mt-1">{achievement.description}</p>
+              {achievement.unlocked && (
+                <span className="inline-block mt-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                  Unlocked!
+                </span>
+              )}
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Personal Records */}
-      <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 rounded-3xl p-6 md:p-8 border border-border/50">
-        <h2 className="font-display text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-          <Target className="h-5 w-5 text-primary" />
-          Personal Records
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="text-center">
-            <p className="text-3xl font-display font-bold text-gradient">
-              {lifetimeStats.bestPace}
-            </p>
-            <p className="text-sm text-muted-foreground mt-1">Best Pace (min/km)</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-display font-bold text-gradient">21.1</p>
-            <p className="text-sm text-muted-foreground mt-1">Longest Run (km)</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-display font-bold text-gradient">28,450</p>
-            <p className="text-sm text-muted-foreground mt-1">Most Steps (day)</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-display font-bold text-gradient">15</p>
-            <p className="text-sm text-muted-foreground mt-1">Best Streak (days)</p>
-          </div>
         </div>
       </div>
     </div>

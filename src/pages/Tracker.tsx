@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Polyline, useMap, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import { toast } from 'react-toastify';
+import { useJogs } from '@/hooks/useJogs';
 import GlowButton from '@/components/ui/GlowButton';
 import { Play, Square, Save, MapPin, Footprints, Clock, Zap, Navigation } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
@@ -65,6 +66,7 @@ const createCustomIcon = (color: string) => {
 };
 
 const Tracker: React.FC = () => {
+  const { saveJog } = useJogs();
   const [isTracking, setIsTracking] = useState(false);
   const [route, setRoute] = useState<Position[]>([]);
   const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
@@ -182,7 +184,7 @@ const Tracker: React.FC = () => {
   }, []);
 
   // Save route
-  const saveRoute = async () => {
+  const handleSaveRoute = async () => {
     if (route.length < 2) {
       toast.warning('Not enough data to save. Run a bit more!');
       return;
@@ -190,15 +192,17 @@ const Tracker: React.FC = () => {
 
     setIsSaving(true);
     try {
-      // In a real app, this would call the API
-      // await jogsAPI.save(route);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-      toast.success('Run saved successfully! 🎉');
+      await saveJog({
+        route,
+        distance_km: distance,
+        duration_seconds: duration,
+        steps: estimatedSteps,
+      });
       setRoute([]);
       setDistance(0);
       setDuration(0);
     } catch (error) {
-      toast.error('Failed to save run. Please try again.');
+      // Error handled in hook
     } finally {
       setIsSaving(false);
     }
@@ -313,7 +317,7 @@ const Tracker: React.FC = () => {
               variant="secondary"
               size="lg"
               icon={Save}
-              onClick={saveRoute}
+              onClick={handleSaveRoute}
               isLoading={isSaving}
               className="shadow-elevated"
             >

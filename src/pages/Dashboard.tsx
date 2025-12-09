@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
+import { useDailyStats } from '@/hooks/useDailyStats';
 import ProgressRing from '@/components/ui/ProgressRing';
 import StatCard from '@/components/ui/StatCard';
 import GlowButton from '@/components/ui/GlowButton';
+import StreakCalendar from '@/components/StreakCalendar';
 import { 
   Footprints, 
   MapPin, 
@@ -13,30 +16,20 @@ import {
   Play,
   Trophy,
   Target,
-  Zap
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
-
-// Mock data for demo
-const mockWeeklyData = [
-  { day: 'Mon', steps: 6500, distance: 4.2 },
-  { day: 'Tue', steps: 8200, distance: 5.5 },
-  { day: 'Wed', steps: 7100, distance: 4.8 },
-  { day: 'Thu', steps: 9500, distance: 6.3 },
-  { day: 'Fri', steps: 5800, distance: 3.9 },
-  { day: 'Sat', steps: 11200, distance: 7.5 },
-  { day: 'Sun', steps: 8750, distance: 5.8 },
-];
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const [dailyStats, setDailyStats] = useState({ steps: 7845, distance: 5.2 });
-  const [isLoading, setIsLoading] = useState(false);
+  const { profile } = useProfile();
+  const { todayStats, weeklyData, currentStreak, activeDays, isLoading } = useDailyStats();
 
   const stepGoal = 10000;
-  const stepProgress = Math.min((dailyStats.steps / stepGoal) * 100, 100);
-  const caloriesBurned = Math.round(dailyStats.steps * 0.04);
-  const avgPace = dailyStats.distance > 0 ? (45 / dailyStats.distance).toFixed(1) : '0';
+  const todaySteps = todayStats?.steps || 0;
+  const todayDistance = todayStats?.distance_km || 0;
+  const stepProgress = Math.min((todaySteps / stepGoal) * 100, 100);
+  const caloriesBurned = Math.round(todaySteps * 0.04);
+  const avgPace = todayDistance > 0 ? (45 / todayDistance).toFixed(1) : '0';
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -45,13 +38,15 @@ const Dashboard: React.FC = () => {
     return 'Good evening';
   };
 
+  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'Runner';
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">
-            {greeting()}, <span className="text-gradient">{user?.email?.split('@')[0] || 'Runner'}</span>!
+            {greeting()}, <span className="text-gradient">{displayName}</span>!
           </h1>
           <p className="text-muted-foreground mt-1">Ready to crush your goals today?</p>
         </div>
@@ -71,7 +66,7 @@ const Dashboard: React.FC = () => {
             <ProgressRing progress={stepProgress} size={200} strokeWidth={12} color="primary">
               <div className="text-center">
                 <p className="font-display text-4xl font-bold text-foreground">
-                  {dailyStats.steps.toLocaleString()}
+                  {todaySteps.toLocaleString()}
                 </p>
                 <p className="text-sm text-muted-foreground">of {stepGoal.toLocaleString()}</p>
               </div>
@@ -82,7 +77,7 @@ const Dashboard: React.FC = () => {
                 {stepProgress >= 100 ? (
                   <span className="text-primary font-semibold">Goal achieved! 🎉</span>
                 ) : (
-                  <>Only <strong className="text-foreground">{(stepGoal - dailyStats.steps).toLocaleString()}</strong> steps to go!</>
+                  <>Only <strong className="text-foreground">{(stepGoal - todaySteps).toLocaleString()}</strong> steps to go!</>
                 )}
               </span>
             </div>
@@ -93,7 +88,7 @@ const Dashboard: React.FC = () => {
         <div className="lg:col-span-2 grid grid-cols-2 gap-4">
           <StatCard
             title="Steps Today"
-            value={dailyStats.steps.toLocaleString()}
+            value={todaySteps.toLocaleString()}
             subtitle="Keep moving!"
             icon={Footprints}
             variant="primary"
@@ -101,7 +96,7 @@ const Dashboard: React.FC = () => {
           />
           <StatCard
             title="Distance"
-            value={`${dailyStats.distance} km`}
+            value={`${todayDistance.toFixed(2)} km`}
             subtitle="Great progress!"
             icon={MapPin}
             variant="secondary"
@@ -116,14 +111,17 @@ const Dashboard: React.FC = () => {
             animate
           />
           <StatCard
-            title="Avg. Pace"
-            value={`${avgPace} min/km`}
-            subtitle="Nice pace!"
+            title="Current Streak"
+            value={`${currentStreak} days`}
+            subtitle="Keep it going!"
             icon={Clock}
             animate
           />
         </div>
       </div>
+
+      {/* Streak Calendar */}
+      <StreakCalendar activeDays={activeDays} currentStreak={currentStreak} />
 
       {/* Weekly Chart */}
       <div className="bg-card rounded-3xl p-6 md:p-8 shadow-card border border-border/50">
@@ -145,7 +143,7 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={mockWeeklyData}>
+            <AreaChart data={weeklyData}>
               <defs>
                 <linearGradient id="colorSteps" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
