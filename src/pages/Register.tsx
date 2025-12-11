@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLocationLeaderboard } from '@/hooks/useLocationLeaderboard';
 import { toast } from 'react-toastify';
 import GlowInput from '@/components/ui/GlowInput';
 import GlowButton from '@/components/ui/GlowButton';
@@ -14,13 +15,22 @@ const Register: React.FC = () => {
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
   
   const { register, session } = useAuth();
+  const { autoJoinLocationLeaderboard } = useLocationLeaderboard();
   const navigate = useNavigate();
+  const hasJoinedLocation = useRef(false);
 
   useEffect(() => {
-    if (session) {
-      navigate('/dashboard');
+    if (session && !hasJoinedLocation.current) {
+      hasJoinedLocation.current = true;
+      // Auto-join location leaderboard after signup
+      autoJoinLocationLeaderboard().then((location) => {
+        if (location) {
+          toast.info(`You've been added to the ${location} leaderboard!`);
+        }
+        navigate('/dashboard');
+      });
     }
-  }, [session, navigate]);
+  }, [session, navigate, autoJoinLocationLeaderboard]);
 
   const validate = () => {
     const newErrors: { email?: string; password?: string; confirmPassword?: string } = {};
@@ -40,11 +50,9 @@ const Register: React.FC = () => {
     setIsLoading(true);
     try {
       await register(email, password);
-      toast.success('Account created! Welcome to JustRun! 🎉');
-      navigate('/dashboard');
+      toast.success('Account created! Welcome to JustRun!');
     } catch (error: any) {
       toast.error(error.message || 'Registration failed. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
