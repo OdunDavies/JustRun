@@ -77,31 +77,114 @@ export type Database = {
         }
         Relationships: []
       }
+      leaderboard_members: {
+        Row: {
+          id: string
+          joined_at: string
+          leaderboard_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          leaderboard_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          leaderboard_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leaderboard_members_leaderboard_id_fkey"
+            columns: ["leaderboard_id"]
+            isOneToOne: false
+            referencedRelation: "leaderboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leaderboards: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          invite_code: string
+          is_public: boolean
+          latitude: number | null
+          location_name: string | null
+          longitude: number | null
+          name: string
+          type: Database["public"]["Enums"]["leaderboard_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          invite_code?: string
+          is_public?: boolean
+          latitude?: number | null
+          location_name?: string | null
+          longitude?: number | null
+          name: string
+          type?: Database["public"]["Enums"]["leaderboard_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          invite_code?: string
+          is_public?: boolean
+          latitude?: number | null
+          location_name?: string | null
+          longitude?: number | null
+          name?: string
+          type?: Database["public"]["Enums"]["leaderboard_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
+          city: string | null
+          country: string | null
           created_at: string
           display_name: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -115,7 +198,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      leaderboard_type: "location" | "custom"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -242,6 +325,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      leaderboard_type: ["location", "custom"],
+    },
   },
 } as const
