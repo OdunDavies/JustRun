@@ -5,6 +5,7 @@ import { useLocationLeaderboard } from '@/hooks/useLocationLeaderboard';
 import { toast } from 'react-toastify';
 import GlowInput from '@/components/ui/GlowInput';
 import GlowButton from '@/components/ui/GlowButton';
+import AddToHomeScreenNotice from '@/components/AddToHomeScreenNotice';
 import { Mail, Lock, Zap, ArrowRight, CheckCircle } from 'lucide-react';
 
 const Register: React.FC = () => {
@@ -13,6 +14,7 @@ const Register: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
+  const [showHomeScreenNotice, setShowHomeScreenNotice] = useState(true);
   
   const { register, session } = useAuth();
   const { autoJoinLocationLeaderboard } = useLocationLeaderboard();
@@ -65,6 +67,10 @@ const Register: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">
+      {/* Add to Home Screen Notice */}
+      {showHomeScreenNotice && (
+        <AddToHomeScreenNotice onAcknowledge={() => setShowHomeScreenNotice(false)} />
+      )}
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse-slow" />
