@@ -223,17 +223,20 @@ const Tracker: React.FC = () => {
   const defaultCenter: Position = currentPosition || { lat: 40.7128, lng: -74.006 };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold text-foreground">GPS Tracker</h1>
-          <p className="text-muted-foreground">Track your run in real-time</p>
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">GPS Tracker</h1>
+          <p className="text-muted-foreground mt-1">Track your run in real-time</p>
         </div>
         {isTracking && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-accent animate-pulse">
-            <div className="w-2 h-2 rounded-full bg-accent animate-ping" />
-            <span className="font-semibold">LIVE</span>
+          <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-accent/20 border border-accent/30">
+            <div className="relative">
+              <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+              <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
+            </div>
+            <span className="font-semibold text-accent">LIVE</span>
           </div>
         )}
       </div>

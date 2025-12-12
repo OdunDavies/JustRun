@@ -43,16 +43,17 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
+          <p className="text-sm text-muted-foreground mb-1">Welcome back</p>
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">
-            {greeting()}, <span className="text-gradient">{displayName}</span>!
+            {greeting()}, <span className="text-gradient">{displayName}</span>
           </h1>
-          <p className="text-muted-foreground mt-1">Ready to crush your goals today?</p>
+          <p className="text-muted-foreground mt-2">Ready to crush your goals today?</p>
         </div>
         <Link to="/tracker">
-          <GlowButton variant="primary" size="lg" icon={Play}>
-            Start Jogging
+          <GlowButton variant="primary" size="lg" icon={Play} className="shadow-lg">
+            Start Running
           </GlowButton>
         </Link>
       </div>
@@ -60,24 +61,24 @@ const Dashboard: React.FC = () => {
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Progress Ring Card */}
-        <div className="lg:col-span-1 bg-card rounded-3xl p-8 shadow-card border border-border/50">
+        <div className="lg:col-span-1 bg-card rounded-3xl p-8 shadow-card border border-border/30 hover:shadow-elevated transition-shadow duration-300">
           <div className="flex flex-col items-center">
-            <h2 className="text-lg font-semibold text-foreground mb-6">Today's Progress</h2>
-            <ProgressRing progress={stepProgress} size={200} strokeWidth={12} color="primary">
+            <h2 className="text-lg font-semibold text-foreground mb-8">Today's Progress</h2>
+            <ProgressRing progress={stepProgress} size={220} strokeWidth={14} color="primary">
               <div className="text-center">
-                <p className="font-display text-4xl font-bold text-foreground">
+                <p className="font-display text-5xl font-bold text-foreground">
                   {todaySteps.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">of {stepGoal.toLocaleString()}</p>
+                <p className="text-sm text-muted-foreground mt-1">of {stepGoal.toLocaleString()} steps</p>
               </div>
             </ProgressRing>
-            <div className="mt-6 flex items-center gap-2">
+            <div className="mt-8 flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50">
               <Target className="h-5 w-5 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {stepProgress >= 100 ? (
-                  <span className="text-primary font-semibold">Goal achieved! 🎉</span>
+                  <span className="text-primary font-semibold">Goal achieved!</span>
                 ) : (
-                  <>Only <strong className="text-foreground">{(stepGoal - todaySteps).toLocaleString()}</strong> steps to go!</>
+                  <><strong className="text-foreground">{(stepGoal - todaySteps).toLocaleString()}</strong> steps to go</>
                 )}
               </span>
             </div>
@@ -124,19 +125,19 @@ const Dashboard: React.FC = () => {
       <StreakCalendar activeDays={activeDays} currentStreak={currentStreak} />
 
       {/* Weekly Chart */}
-      <div className="bg-card rounded-3xl p-6 md:p-8 shadow-card border border-border/50">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-card rounded-3xl p-6 md:p-8 shadow-card border border-border/30 hover:shadow-elevated transition-shadow duration-300">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h2 className="font-display text-xl font-bold text-foreground">Weekly Activity</h2>
-            <p className="text-sm text-muted-foreground">Your performance this week</p>
+            <p className="text-sm text-muted-foreground mt-1">Your performance this week</p>
           </div>
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-6 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-primary" />
+              <div className="w-3 h-3 rounded-full bg-primary shadow-sm" />
               <span className="text-muted-foreground">Steps</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-secondary" />
+              <div className="w-3 h-3 rounded-full bg-secondary shadow-sm" />
               <span className="text-muted-foreground">Distance</span>
             </div>
           </div>

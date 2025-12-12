@@ -28,31 +28,31 @@ const Navbar: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-border/50">
+    <nav className="sticky top-0 z-50 glass border-b border-border/30 backdrop-blur-2xl">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/dashboard" className="flex items-center gap-2 group">
+          <Link to="/dashboard" className="flex items-center gap-3 group">
             <div className="relative">
-              <div className="h-10 w-10 rounded-xl gradient-primary flex items-center justify-center glow-emerald group-hover:scale-110 transition-transform">
+              <div className="h-10 w-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                 <Zap className="h-5 w-5 text-primary-foreground" />
               </div>
-              <div className="absolute inset-0 rounded-xl gradient-primary opacity-50 blur-lg group-hover:opacity-75 transition-opacity" />
+              <div className="absolute inset-0 rounded-xl gradient-primary opacity-0 blur-lg group-hover:opacity-60 transition-opacity" />
             </div>
-            <span className="font-display font-bold text-xl text-gradient">JustRun</span>
+            <span className="font-display font-bold text-xl text-gradient hidden sm:block">JustRun</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-1 bg-muted/30 rounded-2xl p-1.5">
             {navLinks.map(({ to, label, icon: Icon }) => (
               <Link
                 key={to}
                 to={to}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200",
+                  "flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300",
                   isActive(to)
-                    ? "bg-primary text-primary-foreground shadow-md glow-emerald"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/60"
                 )}
               >
                 <Icon className="h-4 w-4" />

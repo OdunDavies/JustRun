@@ -159,8 +159,8 @@ const Register: React.FC = () => {
         </div>
 
         {/* Motivational text */}
-        <p className="text-center text-muted-foreground mt-6 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-          Join thousands of runners crushing their goals! 🏆
+        <p className="text-center text-muted-foreground mt-8 animate-fade-in text-sm" style={{ animationDelay: '0.5s' }}>
+          Join 150K+ runners crushing their goals in 2025!
         </p>
       </div>
     </div>

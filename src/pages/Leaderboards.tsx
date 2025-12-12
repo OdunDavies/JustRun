@@ -95,20 +95,22 @@ const Leaderboards: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
-          <h1 className="font-display text-3xl font-bold text-foreground flex items-center gap-3">
-            <Trophy className="h-8 w-8 text-accent" />
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-accent/20 flex items-center justify-center">
+              <Trophy className="h-6 w-6 text-accent" />
+            </div>
             Leaderboards
           </h1>
-          <p className="text-muted-foreground mt-1">Compete with runners worldwide</p>
+          <p className="text-muted-foreground mt-2">Compete with runners worldwide</p>
         </div>
         {userRank && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20">
-            <span className="text-sm text-muted-foreground">Global Rank:</span>
-            <span className="font-display text-xl font-bold text-primary">#{userRank}</span>
+          <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20">
+            <span className="text-sm text-muted-foreground">Your Global Rank</span>
+            <span className="font-display text-2xl font-bold text-gradient">#{userRank}</span>
           </div>
         )}
       </div>
@@ -131,12 +133,12 @@ const Leaderboards: React.FC = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="global" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-2 mb-8 h-12 p-1 bg-muted/50 rounded-2xl">
+          <TabsTrigger value="global" className="flex items-center gap-2 rounded-xl data-[state=active]:shadow-md transition-all">
             <Globe className="h-4 w-4" />
-            Global
+            Global Rankings
           </TabsTrigger>
-          <TabsTrigger value="my-boards" className="flex items-center gap-2">
+          <TabsTrigger value="my-boards" className="flex items-center gap-2 rounded-xl data-[state=active]:shadow-md transition-all">
             <Users className="h-4 w-4" />
             My Boards ({myLeaderboards.length})
           </TabsTrigger>
@@ -144,11 +146,11 @@ const Leaderboards: React.FC = () => {
 
         <TabsContent value="global" className="mt-0">
           {/* Global Leaderboard */}
-          <div className="bg-card rounded-3xl border border-border/50 shadow-card overflow-hidden">
+          <div className="bg-card rounded-3xl border border-border/30 shadow-card overflow-hidden hover:shadow-elevated transition-shadow duration-300">
             {/* Top 3 Podium */}
             {globalLeaderboard.length >= 3 && (
-              <div className="p-6 md:p-8 gradient-hero">
-                <h2 className="font-display text-xl font-bold text-primary-foreground mb-6 text-center">
+              <div className="p-8 md:p-10 gradient-hero">
+                <h2 className="font-display text-xl md:text-2xl font-bold text-primary-foreground mb-8 text-center">
                   Top Runners Worldwide
                 </h2>
                 <div className="flex items-end justify-center gap-4 md:gap-8">
