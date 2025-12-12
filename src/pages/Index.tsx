@@ -71,9 +71,8 @@ const Index: React.FC = () => {
             <span className="text-gradient">JustRun</span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            Track your runs, crush your goals, and compete with runners worldwide. 
-            Your journey to fitness starts here.
+          <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            The #1 running app of 2025. Track your runs, crush your goals, and compete with runners worldwide.
           </p>
 
           {/* CTA Buttons */}
@@ -91,18 +90,18 @@ const Index: React.FC = () => {
           </div>
 
           {/* Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-8 max-w-md mx-auto animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <div className="text-center">
-              <p className="font-display text-3xl md:text-4xl font-bold text-gradient">50K+</p>
-              <p className="text-sm text-muted-foreground">Runners</p>
+          <div className="mt-16 grid grid-cols-3 gap-6 md:gap-12 max-w-lg mx-auto animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <div className="text-center group cursor-default">
+              <p className="font-display text-3xl md:text-5xl font-bold text-gradient group-hover:scale-110 transition-transform">150K+</p>
+              <p className="text-sm md:text-base text-muted-foreground mt-1">Active Runners</p>
             </div>
-            <div className="text-center">
-              <p className="font-display text-3xl md:text-4xl font-bold text-gradient">2M+</p>
-              <p className="text-sm text-muted-foreground">KM Tracked</p>
+            <div className="text-center group cursor-default">
+              <p className="font-display text-3xl md:text-5xl font-bold text-gradient group-hover:scale-110 transition-transform">8M+</p>
+              <p className="text-sm md:text-base text-muted-foreground mt-1">KM Tracked</p>
             </div>
-            <div className="text-center">
-              <p className="font-display text-3xl md:text-4xl font-bold text-gradient">100+</p>
-              <p className="text-sm text-muted-foreground">Countries</p>
+            <div className="text-center group cursor-default">
+              <p className="font-display text-3xl md:text-5xl font-bold text-gradient group-hover:scale-110 transition-transform">180+</p>
+              <p className="text-sm md:text-base text-muted-foreground mt-1">Countries</p>
             </div>
           </div>
         </div>
@@ -116,13 +115,16 @@ const Index: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 relative">
+      <section className="py-24 px-4 relative">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <div className="text-center mb-20">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+              Why Choose JustRun
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
               Everything you need to <span className="text-gradient">run better</span>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Powerful features designed to help you track, improve, and enjoy your running journey
             </p>
           </div>
@@ -131,19 +133,19 @@ const Index: React.FC = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="group bg-card rounded-3xl p-8 border border-border/50 shadow-card hover:shadow-elevated hover:scale-[1.02] transition-all duration-300"
+                className="group bg-card rounded-3xl p-8 border border-border/50 shadow-card hover:shadow-elevated hover:-translate-y-2 transition-all duration-300 cursor-default"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`h-14 w-14 rounded-2xl flex items-center justify-center mb-6 ${
+                <div className={`h-16 w-16 rounded-2xl flex items-center justify-center mb-6 ${
                   feature.color === 'primary' ? 'gradient-primary' : 
                   feature.color === 'secondary' ? 'bg-secondary' : 'bg-accent'
-                } group-hover:scale-110 transition-transform`}>
-                  <feature.icon className="h-7 w-7 text-primary-foreground" />
+                } group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                  <feature.icon className="h-8 w-8 text-primary-foreground" />
                 </div>
                 <h3 className="font-display text-xl font-bold text-foreground mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -181,16 +183,21 @@ const Index: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-border">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center">
-              <Zap className="h-4 w-4 text-primary-foreground" />
+      <footer className="py-10 px-4 border-t border-border/50 bg-card/30">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl gradient-primary flex items-center justify-center shadow-md">
+              <Zap className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-foreground">JustRun</span>
+            <span className="font-display font-bold text-lg text-foreground">JustRun</span>
+          </div>
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a>
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms of Service</a>
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2024 JustRun. Every step counts.
+            © 2025 JustRun. Every step counts.
           </p>
         </div>
       </footer>

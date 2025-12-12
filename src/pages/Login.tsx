@@ -120,8 +120,8 @@ const Login: React.FC = () => {
         </div>
 
         {/* Motivational text */}
-        <p className="text-center text-muted-foreground mt-6 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-          Every step counts. Let's make today count! 💪
+        <p className="text-center text-muted-foreground mt-8 animate-fade-in text-sm" style={{ animationDelay: '0.5s' }}>
+          Every step counts. Let's make 2025 your best year!
         </p>
       </div>
     </div>

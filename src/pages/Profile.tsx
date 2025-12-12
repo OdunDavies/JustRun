@@ -88,19 +88,19 @@ const Profile: React.FC = () => {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Profile Header */}
-      <div className="bg-card rounded-3xl border border-border/50 shadow-card overflow-hidden">
+      <div className="bg-card rounded-3xl border border-border/30 shadow-card overflow-hidden hover:shadow-elevated transition-shadow duration-300">
         {/* Cover gradient */}
-        <div className="h-32 md:h-40 gradient-hero relative">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iYSIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVHJhbnNmb3JtPSJyb3RhdGUoNDUpIj48cGF0aCBkPSJNLTEwIDMwaDYwdi0ySDEweiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2EpIi8+PC9zdmc+')] opacity-50" />
+        <div className="h-36 md:h-48 gradient-hero relative">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iYSIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVHJhbnNmb3JtPSJyb3RhdGUoNDUpIj48cGF0aCBkPSJNLTEwIDMwaDYwdi0ySDEweiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2EpIi8+PC9zdmc+')] opacity-40" />
         </div>
 
         {/* Profile Info */}
-        <div className="px-6 pb-6 -mt-16 relative">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div className="px-6 md:px-8 pb-8 -mt-16 relative">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             {/* Avatar */}
-            <div className="flex items-end gap-4">
+            <div className="flex items-end gap-5">
               <div className="relative">
-                <div className="h-28 w-28 rounded-2xl bg-card border-4 border-card shadow-elevated flex items-center justify-center overflow-hidden">
+                <div className="h-32 w-32 rounded-2xl bg-card border-4 border-card shadow-elevated flex items-center justify-center overflow-hidden">
                   {avatarUrl || profile?.avatar_url ? (
                     <img src={avatarUrl || profile?.avatar_url || ''} alt="Avatar" className="h-full w-full object-cover" />
                   ) : (
