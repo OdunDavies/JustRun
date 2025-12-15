@@ -22,54 +22,41 @@ const StatCard: React.FC<StatCardProps> = ({
   animate = false,
 }) => {
   const variantStyles = {
-    default: 'bg-card shadow-card border border-border/50',
-    primary: 'gradient-primary text-primary-foreground glow-emerald',
-    secondary: 'bg-secondary text-secondary-foreground glow-blue',
-    accent: 'bg-accent text-accent-foreground glow-orange',
+    default: 'bg-card border-2 border-border',
+    primary: 'bg-primary/10 border-2 border-primary/30',
+    secondary: 'bg-secondary/10 border-2 border-secondary/30',
+    accent: 'bg-accent/10 border-2 border-accent/30',
   };
 
-  const iconBgStyles = {
-    default: 'bg-primary/10 text-primary',
-    primary: 'bg-primary-foreground/20 text-primary-foreground',
-    secondary: 'bg-secondary-foreground/20 text-secondary-foreground',
-    accent: 'bg-accent-foreground/20 text-accent-foreground',
+  const iconStyles = {
+    default: 'text-foreground',
+    primary: 'text-primary',
+    secondary: 'text-secondary',
+    accent: 'text-accent',
   };
 
   return (
     <div
       className={cn(
-        'rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-elevated',
+        'athletic-card rounded-xl p-5 transition-all duration-200',
         variantStyles[variant],
         animate && 'animate-fade-in',
         className
       )}
     >
-      <div className="flex items-start justify-between">
-        <div className="space-y-2">
-          <p className={cn(
-            'text-sm font-medium',
-            variant === 'default' ? 'text-muted-foreground' : 'opacity-80'
-          )}>
-            {title}
+      <div className="flex flex-col items-center text-center">
+        <Icon className={cn('h-6 w-6 mb-2', iconStyles[variant])} />
+        <p className="stat-number text-foreground">
+          {value}
+        </p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">
+          {title}
+        </p>
+        {subtitle && (
+          <p className="text-xs text-muted-foreground/70 mt-1">
+            {subtitle}
           </p>
-          <p className="text-3xl font-display font-bold tracking-tight">
-            {value}
-          </p>
-          {subtitle && (
-            <p className={cn(
-              'text-sm',
-              variant === 'default' ? 'text-muted-foreground' : 'opacity-70'
-            )}>
-              {subtitle}
-            </p>
-          )}
-        </div>
-        <div className={cn(
-          'h-12 w-12 rounded-xl flex items-center justify-center',
-          iconBgStyles[variant]
-        )}>
-          <Icon className="h-6 w-6" />
-        </div>
+        )}
       </div>
     </div>
   );
