@@ -133,6 +133,14 @@ const Tracker: React.FC = () => {
     // Start watching position
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
+        const accuracy = pos.coords.accuracy;
+        
+        // Filter out low accuracy readings (> 50 meters)
+        if (accuracy > 50) {
+          console.log(`GPS accuracy too low: ${accuracy}m - waiting for better signal`);
+          return;
+        }
+
         const newPosition = {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
@@ -140,26 +148,43 @@ const Tracker: React.FC = () => {
 
         setCurrentPosition(newPosition);
         setRoute((prevRoute) => {
-          const newRoute = [...prevRoute, newPosition];
-          
-          // Calculate new distance
-          if (prevRoute.length > 0) {
-            const lastPos = prevRoute[prevRoute.length - 1];
-            const segmentDistance = calculateDistance(lastPos, newPosition);
-            setDistance((prev) => prev + segmentDistance);
+          // First position - add immediately
+          if (prevRoute.length === 0) {
+            return [newPosition];
           }
           
-          return newRoute;
+          const lastPos = prevRoute[prevRoute.length - 1];
+          const segmentDistance = calculateDistance(lastPos, newPosition);
+          
+          // Only add point if moved at least 5 meters (0.005 km) to filter GPS noise
+          if (segmentDistance < 0.005) {
+            return prevRoute;
+          }
+          
+          // Filter out unrealistic jumps (> 100m in one reading = likely GPS error)
+          if (segmentDistance > 0.1) {
+            console.log(`Filtered GPS jump: ${(segmentDistance * 1000).toFixed(0)}m`);
+            return prevRoute;
+          }
+          
+          setDistance((prev) => prev + segmentDistance);
+          return [...prevRoute, newPosition];
         });
       },
       (error) => {
         console.error('Tracking error:', error);
-        toast.error('GPS signal lost. Please check your location settings.');
+        if (error.code === 1) {
+          toast.error('Location permission denied. Please enable location access.');
+        } else if (error.code === 2) {
+          toast.error('GPS unavailable. Are you indoors? Try going outside.');
+        } else {
+          toast.error('GPS signal lost. Please check your location settings.');
+        }
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
+        timeout: 15000,
+        maximumAge: 1000,
       }
     );
 
