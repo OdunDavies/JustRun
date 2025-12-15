@@ -195,7 +195,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_leaderboard_invite_code: {
+        Args: { _leaderboard_id: string }
+        Returns: string
+      }
+      is_leaderboard_member: {
+        Args: { _leaderboard_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_public_leaderboard: {
+        Args: { _leaderboard_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       leaderboard_type: "location" | "custom"
