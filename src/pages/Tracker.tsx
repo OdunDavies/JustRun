@@ -3,8 +3,9 @@ import { MapContainer, TileLayer, Polyline, useMap, Marker } from 'react-leaflet
 import L from 'leaflet';
 import { toast } from 'react-toastify';
 import { useJogs } from '@/hooks/useJogs';
+import { useBackgroundTracking } from '@/hooks/useBackgroundTracking';
 import GlowButton from '@/components/ui/GlowButton';
-import { Play, Square, Save, MapPin, Footprints, Clock, Zap, Navigation } from 'lucide-react';
+import { Play, Square, Save, MapPin, Footprints, Clock, Zap, Navigation, Smartphone, Signal } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers
@@ -22,7 +23,7 @@ interface Position {
 
 // Haversine formula for distance calculation
 const calculateDistance = (pos1: Position, pos2: Position): number => {
-  const R = 6371; // Earth's radius in km
+  const R = 6371;
   const dLat = ((pos2.lat - pos1.lat) * Math.PI) / 180;
   const dLon = ((pos2.lng - pos1.lng) * Math.PI) / 180;
   const a =
@@ -48,31 +49,35 @@ const MapRecenter: React.FC<{ position: Position | null }> = ({ position }) => {
   return null;
 };
 
-// Custom marker icon
-const createCustomIcon = (color: string) => {
+// Custom marker icon with athletic style
+const createCustomIcon = (color: string, isActive: boolean = false) => {
   return L.divIcon({
     className: 'custom-marker',
     html: `<div style="
-      width: 20px;
-      height: 20px;
+      width: ${isActive ? '24px' : '18px'};
+      height: ${isActive ? '24px' : '18px'};
       background: ${color};
       border-radius: 50%;
-      border: 3px solid white;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      border: 3px solid #fff;
+      box-shadow: 0 0 ${isActive ? '20px' : '10px'} ${color};
+      ${isActive ? 'animation: pulse 1.5s infinite;' : ''}
     "></div>`,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
+    iconSize: [isActive ? 24 : 18, isActive ? 24 : 18],
+    iconAnchor: [isActive ? 12 : 9, isActive ? 12 : 9],
   });
 };
 
 const Tracker: React.FC = () => {
   const { saveJog } = useJogs();
+  const { isBackgroundSupported, syncTrackingState, requestBackgroundPermission } = useBackgroundTracking();
+  
   const [isTracking, setIsTracking] = useState(false);
   const [route, setRoute] = useState<Position[]>([]);
   const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
   const [distance, setDistance] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -94,6 +99,11 @@ const Tracker: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Sync tracking state for background persistence
+  useEffect(() => {
+    syncTrackingState(isTracking, route, distance, duration);
+  }, [isTracking, route, distance, duration, syncTrackingState]);
+
   // Get initial position
   useEffect(() => {
     if (navigator.geolocation) {
@@ -103,22 +113,26 @@ const Tracker: React.FC = () => {
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
           });
+          setGpsAccuracy(pos.coords.accuracy);
         },
         (error) => {
           console.error('Geolocation error:', error);
-          // Default to a sample location for demo
           setCurrentPosition({ lat: 40.7128, lng: -74.006 });
-        }
+        },
+        { enableHighAccuracy: true }
       );
     }
   }, []);
 
   // Start tracking
-  const startTracking = useCallback(() => {
+  const startTracking = useCallback(async () => {
     if (!navigator.geolocation) {
       toast.error('Geolocation is not supported by your browser');
       return;
     }
+
+    // Request background permission
+    await requestBackgroundPermission();
 
     setIsTracking(true);
     setRoute([]);
@@ -130,14 +144,13 @@ const Tracker: React.FC = () => {
       setDuration((prev) => prev + 1);
     }, 1000);
 
-    // Start watching position
+    // Start watching position with background support
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
         const accuracy = pos.coords.accuracy;
+        setGpsAccuracy(accuracy);
         
-        // Filter out low accuracy readings (> 50 meters)
         if (accuracy > 50) {
-          console.log(`GPS accuracy too low: ${accuracy}m - waiting for better signal`);
           return;
         }
 
@@ -148,7 +161,6 @@ const Tracker: React.FC = () => {
 
         setCurrentPosition(newPosition);
         setRoute((prevRoute) => {
-          // First position - add immediately
           if (prevRoute.length === 0) {
             return [newPosition];
           }
@@ -156,14 +168,11 @@ const Tracker: React.FC = () => {
           const lastPos = prevRoute[prevRoute.length - 1];
           const segmentDistance = calculateDistance(lastPos, newPosition);
           
-          // Only add point if moved at least 5 meters (0.005 km) to filter GPS noise
           if (segmentDistance < 0.005) {
             return prevRoute;
           }
           
-          // Filter out unrealistic jumps (> 100m in one reading = likely GPS error)
           if (segmentDistance > 0.1) {
-            console.log(`Filtered GPS jump: ${(segmentDistance * 1000).toFixed(0)}m`);
             return prevRoute;
           }
           
@@ -174,11 +183,11 @@ const Tracker: React.FC = () => {
       (error) => {
         console.error('Tracking error:', error);
         if (error.code === 1) {
-          toast.error('Location permission denied. Please enable location access.');
+          toast.error('Location permission denied');
         } else if (error.code === 2) {
-          toast.error('GPS unavailable. Are you indoors? Try going outside.');
+          toast.error('GPS unavailable - try going outside');
         } else {
-          toast.error('GPS signal lost. Please check your location settings.');
+          toast.error('GPS signal lost');
         }
       },
       {
@@ -188,8 +197,8 @@ const Tracker: React.FC = () => {
       }
     );
 
-    toast.success('Tracking started! Let\'s go! 🏃‍♂️');
-  }, []);
+    toast.success('TRACKING STARTED - GO!');
+  }, [requestBackgroundPermission]);
 
   // Stop tracking
   const stopTracking = useCallback(() => {
@@ -205,13 +214,13 @@ const Tracker: React.FC = () => {
       timerRef.current = null;
     }
 
-    toast.info('Tracking stopped. Great run!');
+    toast.info('Run complete!');
   }, []);
 
   // Save route
   const handleSaveRoute = async () => {
     if (route.length < 2) {
-      toast.warning('Not enough data to save. Run a bit more!');
+      toast.warning('Run a bit more to save!');
       return;
     }
 
@@ -248,57 +257,77 @@ const Tracker: React.FC = () => {
   const defaultCenter: Position = currentPosition || { lat: 40.7128, lng: -74.006 };
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Header */}
+    <div className="space-y-6 animate-fade-in">
+      {/* Header - Athletic Style */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">GPS Tracker</h1>
-          <p className="text-muted-foreground mt-1">Track your run in real-time</p>
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">
+            GPS <span className="text-gradient">TRACKER</span>
+          </h1>
+          <p className="text-muted-foreground mt-1 uppercase tracking-wider text-sm">Real-time run tracking</p>
         </div>
-        {isTracking && (
-          <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-accent/20 border border-accent/30">
-            <div className="relative">
-              <div className="w-2.5 h-2.5 rounded-full bg-accent" />
-              <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
+        <div className="flex items-center gap-3">
+          {isBackgroundSupported && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-muted/50 border border-border">
+              <Smartphone className="w-4 h-4 text-accent" />
+              <span className="text-xs text-muted-foreground uppercase">BG Mode</span>
             </div>
-            <span className="font-semibold text-accent">LIVE</span>
-          </div>
-        )}
+          )}
+          {isTracking && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded bg-primary/20 border-2 border-primary animate-pulse">
+              <div className="relative">
+                <div className="w-3 h-3 rounded-full bg-primary" />
+                <div className="absolute inset-0 w-3 h-3 rounded-full bg-primary animate-ping" />
+              </div>
+              <span className="font-display text-primary text-lg">LIVE</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Map Container */}
-      <div className="relative rounded-3xl overflow-hidden shadow-elevated border border-border/50">
-        <div className="h-[400px] md:h-[500px]">
+      {/* GPS Signal Indicator */}
+      {gpsAccuracy && (
+        <div className="flex items-center gap-2 text-xs">
+          <Signal className={`w-4 h-4 ${gpsAccuracy < 20 ? 'text-accent' : gpsAccuracy < 50 ? 'text-primary' : 'text-destructive'}`} />
+          <span className="text-muted-foreground uppercase tracking-wider">
+            GPS: {gpsAccuracy < 20 ? 'Excellent' : gpsAccuracy < 50 ? 'Good' : 'Weak'} ({Math.round(gpsAccuracy)}m)
+          </span>
+        </div>
+      )}
+
+      {/* Map Container - Dark Athletic Style */}
+      <div className="relative rounded-xl overflow-hidden shadow-elevated border-2 border-border">
+        <div className="h-[350px] md:h-[450px]">
           <MapContainer
             center={[defaultCenter.lat, defaultCenter.lng]}
-            zoom={15}
+            zoom={16}
             className="h-full w-full"
             zoomControl={false}
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
             
-            {/* Route polyline */}
+            {/* Route polyline - hot red */}
             {route.length > 1 && (
               <Polyline
                 positions={route.map((p): [number, number] => [p.lat, p.lng])}
                 pathOptions={{
-                  color: 'hsl(217, 91%, 60%)',
-                  weight: 5,
-                  opacity: 0.8,
+                  color: '#FF3B30',
+                  weight: 6,
+                  opacity: 0.9,
                   lineCap: 'round',
                   lineJoin: 'round',
                 }}
               />
             )}
 
-            {/* Start marker */}
+            {/* Start marker - volt yellow */}
             {route.length > 0 && (
               <Marker
                 position={[route[0].lat, route[0].lng]}
-                icon={createCustomIcon('#10B981')}
+                icon={createCustomIcon('#CCFF00')}
               />
             )}
 
@@ -306,7 +335,7 @@ const Tracker: React.FC = () => {
             {currentPosition && (
               <Marker
                 position={[currentPosition.lat, currentPosition.lng]}
-                icon={createCustomIcon(isTracking ? '#F97316' : '#3B82F6')}
+                icon={createCustomIcon(isTracking ? '#FF3B30' : '#00FFFF', isTracking)}
               />
             )}
 
@@ -315,120 +344,97 @@ const Tracker: React.FC = () => {
         </div>
 
         {/* Floating Controls */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
           {!isTracking ? (
-            <GlowButton
-              variant="accent"
-              size="xl"
-              icon={Play}
+            <button
               onClick={startTracking}
-              className="shadow-elevated"
+              className="flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded font-display text-xl uppercase tracking-wide shadow-elevated hover:bg-primary/90 transition-all glow-red"
             >
-              Start Run
-            </GlowButton>
+              <Play className="w-6 h-6 fill-current" />
+              START RUN
+            </button>
           ) : (
-            <>
-              <GlowButton
-                variant="primary"
-                size="lg"
-                icon={Square}
-                onClick={stopTracking}
-                className="shadow-elevated"
-              >
-                Stop
-              </GlowButton>
-            </>
+            <button
+              onClick={stopTracking}
+              className="flex items-center gap-3 px-8 py-4 bg-card text-foreground rounded font-display text-xl uppercase tracking-wide shadow-elevated border-2 border-primary hover:bg-primary/20 transition-all"
+            >
+              <Square className="w-6 h-6 fill-current" />
+              STOP
+            </button>
           )}
           
           {!isTracking && route.length > 1 && (
-            <GlowButton
-              variant="secondary"
-              size="lg"
-              icon={Save}
+            <button
               onClick={handleSaveRoute}
-              isLoading={isSaving}
-              className="shadow-elevated"
+              disabled={isSaving}
+              className="flex items-center gap-3 px-8 py-4 bg-accent text-accent-foreground rounded font-display text-xl uppercase tracking-wide shadow-elevated hover:bg-accent/90 transition-all glow-volt disabled:opacity-50"
             >
-              Save Run
-            </GlowButton>
+              <Save className="w-6 h-6" />
+              {isSaving ? 'SAVING...' : 'SAVE'}
+            </button>
           )}
         </div>
       </div>
 
-      {/* Live Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-card rounded-2xl p-5 border border-border/50 shadow-card">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center">
-              <MapPin className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Distance</p>
-              <p className="font-display text-2xl font-bold text-foreground">
-                {distance.toFixed(2)} <span className="text-sm font-normal text-muted-foreground">km</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-2xl p-5 border border-border/50 shadow-card">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center">
-              <Footprints className="h-6 w-6 text-secondary-foreground" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Steps</p>
-              <p className="font-display text-2xl font-bold text-foreground">
-                {estimatedSteps.toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-2xl p-5 border border-border/50 shadow-card">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-xl bg-accent flex items-center justify-center">
-              <Clock className="h-6 w-6 text-accent-foreground" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Duration</p>
-              <p className="font-display text-2xl font-bold text-foreground">
-                {formatDuration(duration)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-2xl p-5 border border-border/50 shadow-card">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-              <Zap className="h-6 w-6 text-foreground" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Pace</p>
-              <p className="font-display text-2xl font-bold text-foreground">
-                {pace} <span className="text-sm font-normal text-muted-foreground">min/km</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tips */}
-      <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-6 border border-border/50">
-        <div className="flex items-start gap-4">
-          <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <Navigation className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-foreground mb-1">GPS Tips</h3>
-            <p className="text-sm text-muted-foreground">
-              For best accuracy, ensure location services are enabled and you're outdoors with a clear view of the sky. 
-              Keep your phone steady while running for more accurate tracking.
+      {/* Live Stats - Athletic Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="athletic-card bg-card rounded-lg p-4 border-2 border-border">
+          <div className="flex flex-col items-center text-center">
+            <MapPin className="h-6 w-6 text-primary mb-2" />
+            <p className="stat-number text-foreground">
+              {distance.toFixed(2)}
             </p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">KM</p>
+          </div>
+        </div>
+
+        <div className="athletic-card bg-card rounded-lg p-4 border-2 border-border">
+          <div className="flex flex-col items-center text-center">
+            <Footprints className="h-6 w-6 text-secondary mb-2" />
+            <p className="stat-number text-foreground">
+              {estimatedSteps.toLocaleString()}
+            </p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">STEPS</p>
+          </div>
+        </div>
+
+        <div className="athletic-card bg-card rounded-lg p-4 border-2 border-border">
+          <div className="flex flex-col items-center text-center">
+            <Clock className="h-6 w-6 text-accent mb-2" />
+            <p className="stat-number text-foreground">
+              {formatDuration(duration)}
+            </p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">TIME</p>
+          </div>
+        </div>
+
+        <div className="athletic-card bg-card rounded-lg p-4 border-2 border-border">
+          <div className="flex flex-col items-center text-center">
+            <Zap className="h-6 w-6 text-primary mb-2" />
+            <p className="stat-number text-foreground">
+              {pace}
+            </p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">MIN/KM</p>
           </div>
         </div>
       </div>
+
+      {/* Background Mode Info */}
+      {isBackgroundSupported && (
+        <div className="bg-muted/30 rounded-lg p-4 border border-border">
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 rounded bg-accent/20 flex items-center justify-center flex-shrink-0">
+              <Smartphone className="h-5 w-5 text-accent" />
+            </div>
+            <div>
+              <h3 className="font-display text-lg text-foreground uppercase">Background Tracking</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                GPS continues recording when your screen is off. Keep running - we've got you covered.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

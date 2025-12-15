@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,111 +6,74 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 220 20% 10%;
+    /* Dark athletic theme - Nike/Adidas inspired */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 160 84% 39%;
+    /* Hot red - Nike inspired */
+    --primary: 4 90% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 91% 60%;
-    --secondary-foreground: 0 0% 100%;
+    /* Electric cyan */
+    --secondary: 180 100% 50%;
+    --secondary-foreground: 0 0% 0%;
 
-    --accent: 24 95% 53%;
-    --accent-foreground: 0 0% 100%;
+    /* Volt yellow - Nike */
+    --accent: 65 100% 50%;
+    --accent-foreground: 0 0% 0%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 160 84% 39%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 4 90% 58%;
 
-    --radius: 1rem;
+    --radius: 0.5rem;
 
-    /* Custom JustRun colors */
-    --emerald: 160 84% 39%;
-    --emerald-light: 158 64% 52%;
-    --emerald-dark: 161 94% 30%;
-    --electric-blue: 217 91% 60%;
-    --electric-blue-light: 213 94% 68%;
-    --orange: 24 95% 53%;
-    --orange-light: 27 96% 61%;
+    /* Athletic brand colors */
+    --hot-red: 4 90% 58%;
+    --volt: 65 100% 50%;
+    --electric-cyan: 180 100% 50%;
+    --pure-black: 0 0% 4%;
+    --carbon: 0 0% 12%;
+    --steel: 0 0% 25%;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(217 91% 60%) 100%);
-    --gradient-energy: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(160 84% 39%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(158 64% 52%) 50%, hsl(217 91% 60%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 20% 98%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+    --gradient-fire: linear-gradient(135deg, hsl(4 90% 58%) 0%, hsl(25 100% 50%) 100%);
+    --gradient-energy: linear-gradient(135deg, hsl(65 100% 50%) 0%, hsl(120 100% 45%) 100%);
+    --gradient-speed: linear-gradient(135deg, hsl(180 100% 50%) 0%, hsl(200 100% 50%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(0 0% 8%) 0%, hsl(0 0% 4%) 100%);
 
-    /* Shadows */
-    --shadow-glow-emerald: 0 0 40px hsl(160 84% 39% / 0.3);
-    --shadow-glow-blue: 0 0 40px hsl(217 91% 60% / 0.3);
-    --shadow-glow-orange: 0 0 40px hsl(24 95% 53% / 0.3);
-    --shadow-card: 0 4px 24px -4px hsl(220 20% 10% / 0.08);
-    --shadow-elevated: 0 20px 60px -15px hsl(220 20% 10% / 0.15);
+    /* Glow effects */
+    --glow-red: 0 0 30px hsl(4 90% 58% / 0.5);
+    --glow-volt: 0 0 30px hsl(65 100% 50% / 0.5);
+    --glow-cyan: 0 0 30px hsl(180 100% 50% / 0.5);
+    --shadow-brutal: 4px 4px 0px hsl(0 0% 0%);
+    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.5);
+    --shadow-elevated: 0 20px 60px hsl(0 0% 0% / 0.7);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 160 84% 39%;
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 4 90% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 20% 96%;
-    --sidebar-accent-foreground: 220 20% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 160 84% 39%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 4 90% 58%;
   }
 
   .dark {
-    --background: 220 20% 8%;
-    --foreground: 210 20% 98%;
-
-    --card: 220 20% 12%;
-    --card-foreground: 210 20% 98%;
-
-    --popover: 220 20% 12%;
-    --popover-foreground: 210 20% 98%;
-
-    --primary: 160 84% 45%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 217 91% 60%;
-    --secondary-foreground: 0 0% 100%;
-
-    --accent: 24 95% 53%;
-    --accent-foreground: 0 0% 100%;
-
-    --muted: 220 15% 18%;
-    --muted-foreground: 220 10% 60%;
-
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 15% 20%;
-    --input: 220 15% 20%;
-    --ring: 160 84% 45%;
-
-    --gradient-card: linear-gradient(180deg, hsl(220 20% 12%) 0%, hsl(220 20% 10%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(30,35,45,0.9) 0%, rgba(30,35,45,0.7) 100%);
-    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.3);
-    --shadow-elevated: 0 20px 60px -15px hsl(0 0% 0% / 0.4);
-
-    --sidebar-background: 220 20% 10%;
-    --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 160 84% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 18%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 160 84% 45%;
+    /* Same as root - dark by default */
   }
 }
 
@@ -121,45 +84,47 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Bebas Neue', 'Oswald', sans-serif;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 }
 
 @layer utilities {
-  .gradient-primary {
-    background: var(--gradient-primary);
+  .gradient-fire {
+    background: var(--gradient-fire);
   }
 
   .gradient-energy {
     background: var(--gradient-energy);
   }
 
-  .gradient-hero {
-    background: var(--gradient-hero);
+  .gradient-speed {
+    background: var(--gradient-speed);
   }
 
-  .gradient-card {
-    background: var(--gradient-card);
+  .gradient-dark {
+    background: var(--gradient-dark);
   }
 
-  .gradient-glass {
-    background: var(--gradient-glass);
+  .glow-red {
+    box-shadow: var(--glow-red);
   }
 
-  .glow-emerald {
-    box-shadow: var(--shadow-glow-emerald);
+  .glow-volt {
+    box-shadow: var(--glow-volt);
   }
 
-  .glow-blue {
-    box-shadow: var(--shadow-glow-blue);
+  .glow-cyan {
+    box-shadow: var(--glow-cyan);
   }
 
-  .glow-orange {
-    box-shadow: var(--shadow-glow-orange);
+  .shadow-brutal {
+    box-shadow: var(--shadow-brutal);
   }
 
   .shadow-card {
@@ -172,12 +137,22 @@
 
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background: var(--gradient-primary);
+    background: var(--gradient-fire);
+  }
+
+  .text-gradient-energy {
+    @apply bg-clip-text text-transparent;
+    background: var(--gradient-energy);
+  }
+
+  .text-gradient-speed {
+    @apply bg-clip-text text-transparent;
+    background: var(--gradient-speed);
   }
 
   .glass {
-    @apply backdrop-blur-xl border border-border/50;
-    background: var(--gradient-glass);
+    @apply backdrop-blur-xl border border-border/30;
+    background: hsl(0 0% 8% / 0.8);
   }
 
   .animate-pulse-slow {
@@ -189,7 +164,7 @@
   }
 
   .animate-glow {
-    animation: glow 3s ease-in-out infinite alternate;
+    animation: glow 2s ease-in-out infinite alternate;
   }
 
   .animate-bounce-subtle {
@@ -203,6 +178,16 @@
   .animate-scale-in {
     animation: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
+
+  .athletic-border {
+    @apply border-2 border-primary;
+  }
+
+  .stat-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    line-height: 1;
+  }
 }
 
 @keyframes float {
@@ -210,16 +195,16 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-12px);
+    transform: translateY(-8px);
   }
 }
 
 @keyframes glow {
   from {
-    box-shadow: 0 0 20px hsl(160 84% 39% / 0.2);
+    box-shadow: 0 0 20px hsl(4 90% 58% / 0.3);
   }
   to {
-    box-shadow: 0 0 50px hsl(160 84% 39% / 0.5);
+    box-shadow: 0 0 40px hsl(4 90% 58% / 0.6);
   }
 }
 
@@ -243,7 +228,7 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-6px);
+    transform: translateY(-4px);
   }
 }
 
@@ -269,6 +254,17 @@
   }
 }
 
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
 .progress-ring {
   transform: rotate(-90deg);
 }
@@ -281,11 +277,12 @@
 
 /* Leaflet custom styles */
 .leaflet-container {
-  @apply rounded-2xl;
+  @apply rounded-xl;
+  filter: saturate(0.8) contrast(1.1);
 }
 
 .leaflet-control-zoom {
-  @apply border-0 shadow-card overflow-hidden rounded-xl;
+  @apply border-0 shadow-card overflow-hidden rounded-lg;
 }
 
 .leaflet-control-zoom a {
@@ -294,7 +291,7 @@
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -302,18 +299,49 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary/30 rounded-full hover:bg-primary/50 transition-colors;
+  @apply bg-primary/50 rounded-full hover:bg-primary transition-colors;
 }
 
 /* Toast customization */
 .Toastify__toast {
-  @apply rounded-xl shadow-elevated font-sans;
+  @apply rounded-lg shadow-elevated font-sans border border-border;
+  background: hsl(var(--card)) !important;
 }
 
 .Toastify__toast--success {
-  @apply bg-primary text-primary-foreground;
+  @apply border-primary;
 }
 
 .Toastify__toast--error {
-  @apply bg-destructive text-destructive-foreground;
+  @apply border-destructive;
+}
+
+.Toastify__toast-body {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Athletic card hover effect */
+.athletic-card {
+  @apply relative overflow-hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.athletic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.athletic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+}
+
+.athletic-card:hover::before {
+  left: 100%;
 }
