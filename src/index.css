@@ -111,6 +111,14 @@
     background: var(--gradient-dark);
   }
 
+  .gradient-hero {
+    background: var(--gradient-fire);
+  }
+
+  .gradient-primary {
+    background: var(--gradient-fire);
+  }
+
   .glow-red {
     box-shadow: var(--glow-red);
   }
@@ -136,18 +144,24 @@
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent;
+    @apply bg-clip-text;
     background: var(--gradient-fire);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .text-gradient-energy {
-    @apply bg-clip-text text-transparent;
+    @apply bg-clip-text;
     background: var(--gradient-energy);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .text-gradient-speed {
-    @apply bg-clip-text text-transparent;
+    @apply bg-clip-text;
     background: var(--gradient-speed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .glass {
