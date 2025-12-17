@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useDailyStats } from '@/hooks/useDailyStats';
+import { useStepCounter } from '@/hooks/useStepCounter';
 import ProgressRing from '@/components/ui/ProgressRing';
 import StatCard from '@/components/ui/StatCard';
 import StreakCalendar from '@/components/StreakCalendar';
+import InlineTracker from '@/components/InlineTracker';
 import { 
   Footprints, 
   MapPin, 
@@ -16,17 +18,22 @@ import {
   Trophy,
   Target,
   ChevronRight,
+  Activity,
+  Pause,
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { profile } = useProfile();
-  const { todayStats, weeklyData, currentStreak, activeDays, isLoading } = useDailyStats();
+  const { todayStats, weeklyData, currentStreak, activeDays, isLoading, refetch } = useDailyStats();
+  const { steps: autoSteps, isTracking: isAutoTracking, isSupported: stepCounterSupported, toggleTracking } = useStepCounter();
+  const [isTrackerOpen, setIsTrackerOpen] = useState(false);
 
   const stepGoal = 10000;
-  const todaySteps = todayStats?.steps || 0;
-  const todayDistance = todayStats?.distance_km || 0;
+  // Combine auto-tracked steps with database steps
+  const todaySteps = Math.max(todayStats?.steps || 0, autoSteps);
+  const todayDistance = todayStats?.distance_km || (autoSteps * 0.0007);
   const stepProgress = Math.min((todaySteps / stepGoal) * 100, 100);
   const caloriesBurned = Math.round(todaySteps * 0.04);
 
@@ -38,6 +45,11 @@ const Dashboard: React.FC = () => {
   };
 
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'RUNNER';
+
+  const handleJogSaved = () => {
+    refetch();
+    setIsTrackerOpen(false);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -52,15 +64,69 @@ const Dashboard: React.FC = () => {
             </h1>
             <p className="text-muted-foreground mt-2 uppercase tracking-wider text-sm">Ready to crush it?</p>
           </div>
-          <Link to="/tracker">
-            <button className="flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded font-display text-xl uppercase tracking-wide shadow-lg hover:bg-primary/90 transition-all glow-red group">
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Auto Step Tracking Toggle */}
+            {stepCounterSupported && (
+              <button
+                onClick={toggleTracking}
+                className={`flex items-center gap-3 px-6 py-3 rounded font-display text-lg uppercase tracking-wide transition-all ${
+                  isAutoTracking 
+                    ? 'bg-accent text-accent-foreground glow-volt' 
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80 border border-border'
+                }`}
+              >
+                {isAutoTracking ? (
+                  <>
+                    <Activity className="w-5 h-5 animate-pulse" />
+                    TRACKING
+                  </>
+                ) : (
+                  <>
+                    <Pause className="w-5 h-5" />
+                    AUTO OFF
+                  </>
+                )}
+              </button>
+            )}
+            {/* Start Run Button */}
+            <button
+              onClick={() => setIsTrackerOpen(true)}
+              className="flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded font-display text-xl uppercase tracking-wide shadow-lg hover:bg-primary/90 transition-all glow-red group"
+            >
               <Play className="w-6 h-6 fill-current group-hover:scale-110 transition-transform" />
               START RUN
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-          </Link>
+          </div>
         </div>
       </div>
+
+      {/* Auto-tracking status */}
+      {stepCounterSupported && (
+        <div className={`flex items-center gap-3 p-4 rounded-lg border ${
+          isAutoTracking 
+            ? 'bg-accent/10 border-accent/30' 
+            : 'bg-muted/30 border-border'
+        }`}>
+          <Activity className={`w-5 h-5 ${isAutoTracking ? 'text-accent animate-pulse' : 'text-muted-foreground'}`} />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">
+              {isAutoTracking ? 'Auto Step Tracking Active' : 'Auto Step Tracking Off'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {isAutoTracking 
+                ? 'Steps are being counted automatically in the background' 
+                : 'Enable to count steps automatically while you move'}
+            </p>
+          </div>
+          {isAutoTracking && (
+            <div className="text-right">
+              <p className="font-display text-2xl text-accent">{autoSteps.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground uppercase">auto steps</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -216,7 +282,7 @@ const Dashboard: React.FC = () => {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link to="/tracker" className="group">
+        <button onClick={() => setIsTrackerOpen(true)} className="group text-left">
           <div className="athletic-card bg-card rounded-xl p-5 border-2 border-border hover:border-primary/50 transition-colors">
             <div className="flex items-center gap-4">
               <div className="h-14 w-14 rounded bg-primary flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -228,7 +294,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           </div>
-        </Link>
+        </button>
 
         <Link to="/leaderboards" className="group">
           <div className="athletic-card bg-card rounded-xl p-5 border-2 border-border hover:border-secondary/50 transition-colors">
@@ -258,6 +324,13 @@ const Dashboard: React.FC = () => {
           </div>
         </Link>
       </div>
+
+      {/* Inline Tracker Modal */}
+      <InlineTracker 
+        isOpen={isTrackerOpen} 
+        onClose={() => setIsTrackerOpen(false)}
+        onJogSaved={handleJogSaved}
+      />
     </div>
   );
 };
